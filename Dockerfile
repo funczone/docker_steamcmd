@@ -1,9 +1,17 @@
 FROM debian:bullseye-slim
 LABEL maintainer="funczone@pm.me"
 
-ENV STEAM_APPID=4020
-ENV STEAM_FOLDER="garrysmod"
-ENV UID=1001
+ENV PUID=1001
+ENV PGID=1001
+ENV OVERLAY_ENABLED=0
+ENV OVERLAY_LOCATION="garrysmod/"
+ENV OVERLAY_REPO="https://github.com/funczone/ttt.git"
+ENV SRCDS_APPID=4020
+ENV SRCDS_FOLDER_NAME="garrysmod"
+ENV SRCDS_START="./${SRCDS_FOLDER_NAME}/launch.sh"
+# ...for now. will probably make some "better" env var start params later.
+
+COPY rootfs /
 
 SHELL ["/bin/bash", "-c"]
 
@@ -25,12 +33,7 @@ RUN apt-get update && \
         software-properties-common \
         steamcmd
 
-# create steam acc, match to uid
-# @todo good way of doing this?
-RUN useradd -U ${UID} steam
+EXPOSE 27015
 
-USER steam
-
-# a lot of this is heavily stolen from...
-# https://github.com/CM2Walki/TF2/blob/master/bullseye/Dockerfile
-
+# lets cook
+ENTRYPOINT ["/init"]
