@@ -4,10 +4,12 @@ Run a source dedicated server in a docker container. This dockerfile contains so
 
 ## Configuration
 ### Environment Variables
+Some unassigned variables are required.
+
 | Variable | Description | Default |
 | -------- | ----------- | ------- |
-| `PUID` | UID to be applied to server files. | `1001` |
-| `PGID` | GID to be applied to server files. | `1001` |
+| `PUID` | UID to be applied to server files. | `1000` |
+| `PGID` | GID to be applied to server files. | `1000` |
 | `OVERLAY_ENABLED` | Whether to overlay a git repo on top of the server. | `0` |
 | `OVERLAY_LOCATION` | Where to overlay the git repo inside of the server volume. | `./garrysmod/` |
 | `OVERLAY_REPO` | The repo to clone. | `https://github.com/funczone/ttt.git` |
