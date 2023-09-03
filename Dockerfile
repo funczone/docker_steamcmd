@@ -1,39 +1,33 @@
 FROM debian:bullseye-slim
 LABEL maintainer="funczone@pm.me"
 
-ENV PUID=1001
-ENV PGID=1001
-ENV OVERLAY_ENABLED=0
-ENV OVERLAY_LOCATION="garrysmod/"
-ENV OVERLAY_REPO="https://github.com/funczone/ttt.git"
-ENV SRCDS_APPID=4020
-ENV SRCDS_FOLDER_NAME="garrysmod"
-ENV SRCDS_START="./${SRCDS_FOLDER_NAME}/launch.sh"
-# ...for now. will probably make some "better" env var start params later.
+ENV PUID=1000 \
+    PGID=1000 \
+    OVERLAY_ENABLED=0 \
+    OVERLAY_LOCATION="./garrysmod/" \
+    OVERLAY_REPO="https://github.com/funczone/ttt.git" \
+    OVERLAY_BRANCH=""
+    STEAM_USERNAME="" \
+    STEAM_PASSWORD="" \
+    SERVER_APPID=4020 \
+    SERVER_LOGIN_TOKEN="" \
+    SERVER_PRELAUNCH_COMMAND="" \
+    SERVER_LAUNCH_COMMAND="./launch.sh"
 
 COPY rootfs /
 
 SHELL ["/bin/bash", "-c"]
 
-# https://developer.valvesoftware.com/wiki/SteamCMD
-# https://stackoverflow.com/a/33439625
-RUN echo $'\n\
-deb http://deb.debian.org/debian bullseye main contrib non-free \n\
-deb-src http://deb.debian.org/debian bullseye main contrib non-free \n\
-deb http://deb.debian.org/debian-security/ bullseye-security main contrib non-free \n\
-deb-src http://deb.debian.org/debian-security/ bullseye-security main contrib non-free \n\
-deb http://deb.debian.org/debian bullseye-updates main contrib non-free \n\
-deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free' >> /etc/apt/sources.list
-RUN dpkg --add-architecture i386
-
 RUN apt-get update && \
     apt-get install \
-        curl \
+        git \
         lib32gcc-s1 \
-        software-properties-common \
-        steamcmd
+        tar
+RUN useradd -m -u ${PUID} steam 
 
 EXPOSE 27015
 
 # lets cook
-ENTRYPOINT ["/init"]
+RUN chmod +x /etc/entry.sh
+ENTRYPOINT ["/etc/entry.sh"]
+
