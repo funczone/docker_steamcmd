@@ -1,10 +1,16 @@
 #!/bin/bash
 export GIT_TERMINAL_PROMPT=0 # for git clone. @TODO potentially unnecessary
 
-echo_info() { echo -e "\e[1;32m[INFO]\e[0m  $*"; }
-echo_debug() {
-    [ $DEBUG ] && echo -e "\e[1;35m[DEBUG]\e[0m $*";
+echo_info()  { echo -e "\e[1;32m[INFO]\e[0m  $*"; }
+echo_debug() { [ $DEBUG ] && echo -e "\e[1;35m[DEBUG]\e[0m $*"; }
+echo_err()   { echo -e "\e[1;31m[ERROR]\e[0m $*"; }
+
+set -e;
+handle_err() {
+    echo_err "Error occured ($(caller)).";
+    rm /server/update_server.txt;
 }
+trap handle_err ERR;
 
 # handle params passed in from entrypoint
 while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
@@ -22,7 +28,8 @@ if [[ $1 == "--" ]]; then shift; fi
 
 # install the server
 cd /home/steam || exit;
-wget -q "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -;
+curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -;
+chown -R "${PUID}:${PGID}" "./";
 
 # if a username is provided, assume a username password pair has been provided.
 USER=$([ "$STEAM_USERNAME" ] && echo "$STEAM_USERNAME $STEAM_PASSWORD" || echo "anonymous");
@@ -33,6 +40,7 @@ if [[ ! -e "/server/update_server.txt" ]] || [[ $FORCE_INSTALL ]]; then
     if [[ -e "/server/update_server.txt" ]]; then
         rm -r "/server/";
     fi
+    chown -R "${PUID}:${PGID}" "/server";
     echo_info "Installing server..."
 
     # create install script
@@ -41,11 +49,10 @@ if [[ ! -e "/server/update_server.txt" ]] || [[ $FORCE_INSTALL ]]; then
 @NoPromptForPassword 1
 force_install_dir /server/
 login ${USER}
-app_update ${SRCDS_APPID} validate
+app_update ${SERVER_APPID} validate
 quit
 EOF
-    cd /server || exit;
-    ./steamcmd.sh +runscript ./update_server.txt;
+    sudo -iu steam eval "./steamcmd.sh +runscript /server/update_server.txt";
 
     # overlay git repo
     if [ "$OVERLAY_ENABLED" ]; then
@@ -65,7 +72,7 @@ EOF
 
     chown -R ${PUID}:${PGID} ./;
 fi
-cd /server;
+cd "/server";
 
 # do pre-launch stuff
 if [[ -n "$SERVER_PRELAUNCH_COMMAND" ]]; then
@@ -76,6 +83,7 @@ fi
 # launch
 if [[ ! $DONT_LAUNCH ]] && [[ -n "$SERVER_LAUNCH_COMMAND" ]]; then
     echo_info "Launching...";
-    sudo -iu steam eval "$SERVER_LAUNCH_COMMAND '$@'";
+    echo_debug "sudo -iu steam eval \"echo \$PWD; $SERVER_LAUNCH_COMMAND '$@'\"";
+    sudo -u steam eval "$SERVER_LAUNCH_COMMAND '$@'";
 fi
 

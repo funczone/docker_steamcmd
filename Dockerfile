@@ -6,7 +6,7 @@ ENV PUID=1000 \
     OVERLAY_ENABLED=0 \
     OVERLAY_LOCATION="./garrysmod/" \
     OVERLAY_REPO="https://github.com/funczone/ttt.git" \
-    OVERLAY_BRANCH=""
+    OVERLAY_BRANCH="" \
     STEAM_USERNAME="" \
     STEAM_PASSWORD="" \
     SERVER_APPID=4020 \
@@ -16,12 +16,15 @@ ENV PUID=1000 \
 
 COPY rootfs /
 
-SHELL ["/bin/bash", "-c"]
+#SHELL ["/bin/bash"]
 
 RUN apt-get update && \
-    apt-get install \
+    apt-get install -y \
+        curl \
         git \
         lib32gcc-s1 \
+        lib32stdc++6 \
+        sudo \
         tar
 RUN useradd -m -u ${PUID} steam 
 
