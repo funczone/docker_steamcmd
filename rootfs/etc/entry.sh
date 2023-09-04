@@ -74,7 +74,7 @@ if [[ -n "$SERVER_PRELAUNCH_COMMAND" ]]; then
 fi
 
 # launch
-if [[ ! $DONT_LAUNCH ]] || [[ -n "$SERVER_LAUNCH_COMMAND" ]]; then
+if [[ ! $DONT_LAUNCH ]] && [[ -n "$SERVER_LAUNCH_COMMAND" ]]; then
     echo_info "Launching...";
     sudo -iu steam eval "$SERVER_LAUNCH_COMMAND '$@'";
 fi
