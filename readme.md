@@ -1,6 +1,6 @@
-# docker_srcds
-Run a source dedicated server in a docker container. This dockerfile contains some extra functionality that assists with server hosting;
-- **Repo overlay:** Overlay a git repo on top of your server. Useful for larger-scale server hosting.
+# docker_steamcmd
+Run a steamcmd server within a docker container. This dockerfile contains some extra functionality that assists with server hosting;
+- **Repo overlay:** Overlay a git repo on top of your server. Useful for reproducible, larger-scale server hosting.
 
 ## Configuration
 ### Environment Variables
@@ -27,9 +27,9 @@ Some unassigned variables are required.
 | `/your/config/path/:/server` | All of the server contents. |
 
 ## Notes
-- Nothing is stopping you from installing another piece of server software using this. Not sure how successful it'll be, haven't tried a lot of things.
+- This is made for srcds servers, but nothing is stopping you from installing another piece of server software using this. Not sure how successful that'll be, haven't tried a lot of things.
 - I (mechabubba) wrote this, so your mileage may vary. First dockerfile, too!
-  - insecure. lmao. dunno how docker handles secrets
+  - insecure. lmao. secret implementation not yet a feature
 
 ## License
 This is licensed under the Unlicense.
